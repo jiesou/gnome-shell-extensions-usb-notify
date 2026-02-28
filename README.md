@@ -2,6 +2,10 @@
 
 A GNOME Shell extension that shows desktop notifications when USB devices are connected, disconnected, or trigger overcurrent protection.
 
+<img width="622" height="184" alt="Screenshot USB devices connected" src="https://github.com/user-attachments/assets/63d29451-1a64-4b8b-8cf0-829f16fa3e79" />
+
+<img width="622" height="184" alt="Screenshot Power surge on the USB port" src="https://github.com/user-attachments/assets/d41abd5d-ab51-44a4-9b76-9ada56f0c3f8" />
+
 ## Translation
 
 Translation source files live in the `po/` directory.
