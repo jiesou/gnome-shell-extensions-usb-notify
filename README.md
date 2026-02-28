@@ -29,13 +29,13 @@ bash ./scripts/install-develop.sh
 After adding or changing translatable strings in the source code, regenerate the POT file:
 
 ```bash
-xgettext --from-code=UTF-8 --output=po/usb-notify@jiesou.github.io.pot *.js
+xgettext --from-code=UTF-8 --output=po/messages.pot *.js
 ```
 
 Then update existing PO files:
 
 ```bash
-msgmerge --update po/zh_CN.po po/usb-notify@jiesou.github.io.pot
+msgmerge --update po/zh_CN.po po/messages.pot
 ```
 
 ## License

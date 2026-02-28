@@ -31,15 +31,25 @@ export default class UsbNotifyExtension extends Extension {
         });
         Main.messageTray.add(this._notifySource);
         this._deviceDescriptionCache = new Map();
+        this._surgeNotification = null;
+        this._surgeNotificationTime = 0;
+        this._surgeCount = 0;
     }
 
     disable() {
         if (this._udevClient) {
             this._udevClient.disconnect(this._udevHandler);
             this._udevClient = null;
+            this._udevHandler = null;
         }
-        this._notifySource = null;
+        if (this._notifySource) {
+            this._notifySource.destroy();
+            this._notifySource = null;
+        }
         this._deviceDescriptionCache = null;
+        this._surgeNotification = null;
+        this._surgeNotificationTime = 0;
+        this._surgeCount = 0;
     }
 
     _getDeviceDescription(device) {
@@ -55,9 +65,9 @@ export default class UsbNotifyExtension extends Extension {
             ''
         ).replaceAll('_', ' ');
 
-        const deviceCode = (
-            device.get_property('MAJOR') + ':' + device.get_property('MINOR')
-        )
+        const major = device.get_property('MAJOR');
+        const minor = device.get_property('MINOR');
+        const deviceCode = (major && minor) ? `${major}:${minor}` : '';
 
         return [vendor, model, deviceCode].filter(Boolean).join(' ') || _('Unknown device');
     }
@@ -68,12 +78,7 @@ export default class UsbNotifyExtension extends Extension {
             const overCurrentPort = device.get_property('OVER_CURRENT_PORT');
             if (overCurrentPort) {
                 const portName = overCurrentPort.split('/').pop();
-                this._sendNotification(
-                    _('Power surge on the USB port'),
-                    _('USB Device on [%s] needs more power than the port can supply.').format(portName),
-                    'dialog-error-symbolic',
-                    true
-                );
+                this._sendSurgeNotification(portName);
             }
             return;
         }
@@ -112,6 +117,36 @@ export default class UsbNotifyExtension extends Extension {
                 false
             );
         }
+    }
+
+    // USB surge triggering always triggers many times in a row, do some debouncing
+    _sendSurgeNotification(portName) {
+        const SURGE_WINDOW_MS = 5000;
+        const now = Date.now();
+        const body = _('USB Device on [%s] needs more power than the port can supply.').format(portName);
+
+        if (this._surgeNotification && (now - this._surgeNotificationTime) < SURGE_WINDOW_MS) {
+            this._surgeCount++;
+            this._surgeNotification.title = _('Power surge on the USB port (x%d)').format(this._surgeCount);
+            this._surgeNotificationTime = now;
+            return;
+        }
+
+        this._surgeCount = 1;
+        this._surgeNotificationTime = now;
+        const notification = new MessageTray.Notification({
+            source: this._notifySource,
+            title: _('Power surge on the USB port'),
+            body,
+            iconName: 'dialog-error-symbolic',
+            urgency: MessageTray.Urgency.CRITICAL,
+        });
+        notification.connect('destroy', () => {
+            if (this._surgeNotification === notification)
+                this._surgeNotification = null;
+        });
+        this._notifySource.addNotification(notification);
+        this._surgeNotification = notification;
     }
 
     _sendNotification(title, body, iconName, isCritical) {

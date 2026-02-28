@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 21:13+0800\n"
+"POT-Creation-Date: 2026-02-28 21:34+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:62
+#: extension.js:71
 msgid "Unknown device"
 msgstr ""
 
-#: extension.js:72
-msgid "Power surge on the USB port"
+#: extension.js:104
+msgid "USB device connected"
 msgstr ""
 
-#: extension.js:73
+#: extension.js:113
+msgid "USB device disconnected"
+msgstr ""
+
+#: extension.js:125
 #, javascript-format
 msgid "USB Device on [%s] needs more power than the port can supply."
 msgstr ""
 
-#: extension.js:100
-msgid "USB device connected"
+#: extension.js:129
+#, javascript-format
+msgid "Power surge on the USB port (x%d)"
 msgstr ""
 
-#: extension.js:109
-msgid "USB device disconnected"
+#: extension.js:138
+msgid "Power surge on the USB port"
 msgstr ""
