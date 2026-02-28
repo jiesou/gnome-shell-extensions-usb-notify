@@ -3,6 +3,7 @@
   "description": "Notifications appear when plugging in USB devices",
   "uuid": "usb-notify@jiesou.github.io",
   "gettext-domain": "usb-notify@jiesou.github.io",
+  "url": "https://github.com/jiesou/gnome-shell-extensions-usb-notify",
   "shell-version": [
     "49"
   ]
