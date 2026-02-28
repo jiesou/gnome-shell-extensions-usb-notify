@@ -1,0 +1,9 @@
+{
+  "name": "USB Notify",
+  "description": "Notifications appear when plugging in USB devices",
+  "uuid": "usb-notify@jiesou.github.io",
+  "gettext-domain": "usb-notify@jiesou.github.io",
+  "shell-version": [
+    "49"
+  ]
+}
