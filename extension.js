@@ -26,10 +26,7 @@ export default class UsbNotifyExtension extends Extension {
         this._udevHandler = this._udevClient.connect(
             'uevent', this._onUevent.bind(this)
         );
-        this._notifySource = new MessageTray.Source({
-            title: 'USB Notify',
-        });
-        Main.messageTray.add(this._notifySource);
+        Main.messageTray.add(MessageTray.getSystemSource());
         this._deviceDescriptionCache = new Map();
         // Pre-fill cache
         // if something have been plugged in before logging in, we won't receive add events for those devices
@@ -43,7 +40,6 @@ export default class UsbNotifyExtension extends Extension {
         }
         this._surgeNotification = null;
         this._surgeNotificationTime = 0;
-        this._surgeCount = 0;
     }
 
     disable() {
@@ -52,26 +48,21 @@ export default class UsbNotifyExtension extends Extension {
             this._udevClient = null;
             this._udevHandler = null;
         }
-        if (this._notifySource) {
-            this._notifySource.destroy();
-            this._notifySource = null;
-        }
         this._deviceDescriptionCache = null;
         this._surgeNotification = null;
         this._surgeNotificationTime = 0;
-        this._surgeCount = 0;
     }
 
     _getDeviceDescription(device) {
         const vendor = (
-            device.get_property('ID_VENDOR_FROM_DATABASE') ||
             device.get_property('ID_VENDOR') ||
+            device.get_property('ID_VENDOR_FROM_DATABASE') ||
             ''
         ).replaceAll('_', ' ');
 
         const model = (
-            device.get_property('ID_MODEL_FROM_DATABASE') ||
             device.get_property('ID_MODEL') ||
+            device.get_property('ID_MODEL_FROM_DATABASE') ||
             ''
         ).replaceAll('_', ' ');
 
@@ -84,11 +75,12 @@ export default class UsbNotifyExtension extends Extension {
 
     _onUevent(_client, action, device) {
         // over-current event is as a change action to the hub device
-        if (action === 'change') {
+        if (action === 'change' && device.get_property('DEVTYPE') === 'usb_interface') {
             const overCurrentPort = device.get_property('OVER_CURRENT_PORT');
+            const overCurrentCount = device.get_property('OVER_CURRENT_COUNT');
             if (overCurrentPort) {
                 const portName = overCurrentPort.split('/').pop();
-                this._sendSurgeNotification(portName);
+                this._sendSurgeNotification(portName, parseInt(overCurrentCount) || 1);
             }
             return;
         }
@@ -130,23 +122,21 @@ export default class UsbNotifyExtension extends Extension {
     }
 
     // USB surge triggering always triggers many times in a row, do some debouncing
-    _sendSurgeNotification(portName) {
+    _sendSurgeNotification(portName, overCurrentCount) {
         const SURGE_WINDOW_MS = 5000;
         const now = Date.now();
         const body = _('USB Device on [%s] needs more power than the port can supply.').format(portName);
 
         if (this._surgeNotification && (now - this._surgeNotificationTime) < SURGE_WINDOW_MS) {
-            this._surgeCount++;
-            this._surgeNotification.title = _('Power surge on the USB port (x%d)').format(this._surgeCount);
+            this._surgeNotification.title = _('Power surge on the USB port (x%d)').format(overCurrentCount);
             this._surgeNotificationTime = now;
             return;
         }
 
-        this._surgeCount = 1;
         this._surgeNotificationTime = now;
         const notification = new MessageTray.Notification({
-            source: this._notifySource,
-            title: _('Power surge on the USB port'),
+            source: MessageTray.getSystemSource(),
+            title: _('Power surge on the USB port (x%d)').format(overCurrentCount),
             body,
             iconName: 'dialog-error-symbolic',
             urgency: MessageTray.Urgency.CRITICAL,
@@ -155,13 +145,13 @@ export default class UsbNotifyExtension extends Extension {
             if (this._surgeNotification === notification)
                 this._surgeNotification = null;
         });
-        this._notifySource.addNotification(notification);
+        MessageTray.getSystemSource().addNotification(notification);
         this._surgeNotification = notification;
     }
 
     _sendNotification(title, body, iconName, isCritical) {
         const notification = new MessageTray.Notification({
-            source: this._notifySource,
+            source: MessageTray.getSystemSource(),
             title,
             body,
             iconName,
@@ -169,6 +159,6 @@ export default class UsbNotifyExtension extends Extension {
                 ? MessageTray.Urgency.CRITICAL
                 : MessageTray.Urgency.NORMAL,
         });
-        this._notifySource.addNotification(notification);
+        MessageTray.getSystemSource().addNotification(notification);
     }
 }
