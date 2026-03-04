@@ -83,7 +83,7 @@ export default class UsbNotifyExtension extends Extension {
     }
 
     _onUevent(_client, action, device) {
-        // over-current 事件以 change action 到达 hub 设备
+        // over-current event is as a change action to the hub device
         if (action === 'change') {
             const overCurrentPort = device.get_property('OVER_CURRENT_PORT');
             if (overCurrentPort) {
@@ -93,11 +93,11 @@ export default class UsbNotifyExtension extends Extension {
             return;
         }
 
-        // 只处理 usb_device，忽略 usb_interface 等
+        // only handle usb_device, ignore usb_interface etc
         if (device.get_property('DEVTYPE') !== 'usb_device')
             return;
 
-        // 忽略根 hub（bDeviceClass=09）
+        // ignore root hub（bDeviceClass=09）
         // const devClass = device.get_sysfs_attr('bDeviceClass');
         // if (devClass === '09')
         //     return;
