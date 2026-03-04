@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 21:34+0800\n"
+"POT-Creation-Date: 2026-02-28 21:41+0800\n"
 "PO-Revision-Date: 2026-02-28 21:17+0800\n"
 "Last-Translator: jiesou <jiesou@github.io>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -17,28 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:71
-msgid "未知设备"
-msgstr ""
+#: extension.js:72
+msgid "Unknown device"
+msgstr "未知设备"
 
-#: extension.js:104
-msgid "USB 设备已连接"
-msgstr ""
+#: extension.js:105
+msgid "USB device connected"
+msgstr "USB 设备已连接"
 
-#: extension.js:113
-msgid "USB 设备已断开"
-msgstr ""
+#: extension.js:114
+msgid "USB device disconnected"
+msgstr "USB 设备已断开"
 
-#: extension.js:125
+#: extension.js:126
 #, javascript-format
-msgid "[%s] 上的 USB 设备所需电量超过该端口所能够提供的电量"
-msgstr ""
+msgid "USB Device on [%s] needs more power than the port can supply."
+msgstr "[%s] 上的 USB 设备所需电量超过该端口所能够提供的电量"
 
-#: extension.js:129
+#: extension.js:130
 #, javascript-format
-msgid "USB 端口上的电涌 (x%d)"
-msgstr ""
+msgid "Power surge on the USB port (x%d)"
+msgstr "USB 端口上的电涌 (x%d)"
 
-#: extension.js:138
-msgid "USB 端口上的电涌"
-msgstr ""
+#: extension.js:139
+msgid "Power surge on the USB port"
+msgstr "USB 端口上的电涌"

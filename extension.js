@@ -31,6 +31,16 @@ export default class UsbNotifyExtension extends Extension {
         });
         Main.messageTray.add(this._notifySource);
         this._deviceDescriptionCache = new Map();
+        // Pre-fill cache
+        // if something have been plugged in before logging in, we won't receive add events for those devices
+        for (const device of this._udevClient.query_by_subsystem('usb')) {
+            if (device.get_property('DEVTYPE') === 'usb_device') {
+                this._deviceDescriptionCache.set(
+                    device.get_sysfs_path(),
+                    this._getDeviceDescription(device)
+                );
+            }
+        }
         this._surgeNotification = null;
         this._surgeNotificationTime = 0;
         this._surgeCount = 0;
