@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-04 10:42+0800\n"
+"POT-Creation-Date: 2026-03-05 08:54+0800\n"
 "PO-Revision-Date: 2026-02-28 21:17+0800\n"
 "Last-Translator: jiesou <jiesou@github.io>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -17,28 +17,77 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:82
+#: extension.js:67 prefs.js:262
 msgid "Unknown device"
 msgstr "未知设备"
 
-#: extension.js:115
+#: extension.js:109
 msgid "USB device connected"
 msgstr "USB 设备已连接"
 
-#: extension.js:124
+#: extension.js:115
 msgid "USB device disconnected"
 msgstr "USB 设备已断开"
 
-#: extension.js:136
+#: extension.js:123
 #, javascript-format
 msgid "USB Device on [%s] needs more power than the port can supply."
 msgstr "[%s] 上的设备所需电量超过该端口所能够提供的电量"
 
-#: extension.js:140
+#: extension.js:126 extension.js:134
 #, javascript-format
 msgid "Power surge on the USB port (x%d)"
 msgstr "USB 端口上的电涌 (x%d)"
 
-#: extension.js:149
-msgid "Power surge on the USB port"
-msgstr "USB 端口上的电涌"
+#: prefs.js:22
+msgid "General"
+msgstr "常规"
+
+#: prefs.js:29
+msgid "Ignore List"
+msgstr "忽略列表"
+
+#: prefs.js:30
+msgid "These USB devices will not trigger notifications"
+msgstr "这些 USB 设备不会触发通知"
+
+#: prefs.js:36
+msgid "Ignored Devices"
+msgstr "忽略设备"
+
+#: prefs.js:45
+msgid "Add device to ignore list"
+msgstr "添加设备到忽略列表"
+
+#: prefs.js:72
+msgid "Remove"
+msgstr "移除"
+
+#: prefs.js:106
+msgid "Device ID (VID:PID)"
+msgstr "设备 ID（VID:PID）"
+
+#: prefs.js:117
+msgid "Choose from connected devices"
+msgstr "从已连接的设备中选择"
+
+#: prefs.js:130
+msgid "Search devices…"
+msgstr "搜索设备…"
+
+#: prefs.js:192
+msgid "Confirm"
+msgstr "确定"
+
+#: prefs.js:198
+msgid "Cancel"
+msgstr "取消"
+
+#~ msgid "Select a connected device to add to the ignore list"
+#~ msgstr "选择已连接的设备来添加到忽略列表"
+
+#~ msgid "Add to ignore list"
+#~ msgstr "添加到忽略列表"
+
+#~ msgid "Add"
+#~ msgstr "添加"

@@ -22,19 +22,20 @@ import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 
 export default class UsbNotifyExtension extends Extension {
     enable() {
+        this._settings = this.getSettings();
         this._udevClient = new GUdev.Client({subsystems: ['usb']});
         this._udevHandler = this._udevClient.connect(
             'uevent', this._onUevent.bind(this)
         );
         Main.messageTray.add(MessageTray.getSystemSource());
-        this._deviceDescriptionCache = new Map();
-        // Pre-fill cache
-        // if something have been plugged in before logging in, we won't receive add events for those devices
+        // Cache stores { id, description } per sysfs path
+        // Pre-fill cache: devices plugged in before login have no 'add' event
+        this._devicesCache = new Map();
         for (const device of this._udevClient.query_by_subsystem('usb')) {
             if (device.get_property('DEVTYPE') === 'usb_device') {
-                this._deviceDescriptionCache.set(
+                this._devicesCache.set(
                     device.get_sysfs_path(),
-                    this._getDeviceDescription(device)
+                    this._getDevice(device)
                 );
             }
         }
@@ -48,29 +49,31 @@ export default class UsbNotifyExtension extends Extension {
             this._udevClient = null;
             this._udevHandler = null;
         }
-        this._deviceDescriptionCache = null;
+        this._devicesCache = null;
         this._surgeNotification = null;
         this._surgeNotificationTime = 0;
+        this._settings = null;
     }
 
-    _getDeviceDescription(device) {
-        const vendor = (
-            device.get_property('ID_VENDOR') ||
-            device.get_property('ID_VENDOR_FROM_DATABASE') ||
-            ''
-        ).replaceAll('_', ' ');
+    // Returns { id: 'vid:pid', description: 'Vendor Model' }
+    _getDevice(device) {
+        const prop = (k1, k2) => (device.get_property(k1) || device.get_property(k2) || '').replaceAll('_', ' ');
+        const vendor = prop('ID_VENDOR', 'ID_VENDOR_FROM_DATABASE');
+        const model  = prop('ID_MODEL',  'ID_MODEL_FROM_DATABASE');
+        const vid = device.get_property('ID_VENDOR_ID');
+        const pid = device.get_property('ID_MODEL_ID');
+        return {
+            id: (vid && pid) ? `${vid}:${pid}`.toLowerCase() : '',
+            description: [vendor, model].filter(Boolean).join(' ') || _('Unknown device'),
+        };
+    }
 
-        const model = (
-            device.get_property('ID_MODEL') ||
-            device.get_property('ID_MODEL_FROM_DATABASE') ||
-            ''
-        ).replaceAll('_', ' ');
+    _isIgnored(id) {
+        return !!id && this._settings.get_strv('ignore-list').includes(id);
+    }
 
-        const major = device.get_property('MAJOR');
-        const minor = device.get_property('MINOR');
-        const deviceCode = (major && minor) ? `${major}:${minor}` : '';
-
-        return [vendor, model, deviceCode].filter(Boolean).join(' ') || _('Unknown device');
+    _deviceLabel({id, description}) {
+        return id ? `${description} ${id}` : description;
     }
 
     _onUevent(_client, action, device) {
@@ -97,27 +100,19 @@ export default class UsbNotifyExtension extends Extension {
         const syspath = device.get_sysfs_path();
 
         if (action === 'add') {
-            const description = this._getDeviceDescription(device);
-            this._deviceDescriptionCache.set(syspath, description);
-            // limit to 10, delete the oldest entry
-            if (this._deviceDescriptionCache.size > 10) {
-                this._deviceDescriptionCache.delete(this._deviceDescriptionCache.keys().next().value);
-            }
-            this._sendNotification(
-                _('USB device connected'),
-                description,
-                'drive-removable-media-symbolic',
-                false
-            );
+            const info = this._getDevice(device);
+            this._devicesCache.set(syspath, info);
+            if (this._devicesCache.size > 10)
+                this._devicesCache.delete(this._devicesCache.keys().next().value);
+            if (this._isIgnored(info.id))
+                return;
+            this._sendNotification(_('USB device connected'), this._deviceLabel(info));
         } else if (action === 'remove') {
-            const description = this._deviceDescriptionCache.get(syspath) || this._getDeviceDescription(device);
-            this._deviceDescriptionCache.delete(syspath);
-            this._sendNotification(
-                _('USB device disconnected'),
-                description,
-                'drive-removable-media-symbolic',
-                false
-            );
+            const info = this._devicesCache.get(syspath) ?? this._getDevice(device);
+            this._devicesCache.delete(syspath);
+            if (this._isIgnored(info.id))
+                return;
+            this._sendNotification(_('USB device disconnected'), this._deviceLabel(info));
         }
     }
 
@@ -149,16 +144,13 @@ export default class UsbNotifyExtension extends Extension {
         this._surgeNotification = notification;
     }
 
-    _sendNotification(title, body, iconName, isCritical) {
-        const notification = new MessageTray.Notification({
+    _sendNotification(title, body) {
+        MessageTray.getSystemSource().addNotification(new MessageTray.Notification({
             source: MessageTray.getSystemSource(),
             title,
             body,
-            iconName,
-            urgency: isCritical
-                ? MessageTray.Urgency.CRITICAL
-                : MessageTray.Urgency.NORMAL,
-        });
-        MessageTray.getSystemSource().addNotification(notification);
+            iconName: 'drive-removable-media-symbolic',
+            urgency: MessageTray.Urgency.NORMAL,
+        }));
     }
 }
