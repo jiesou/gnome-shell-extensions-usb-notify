@@ -6,6 +6,7 @@
   "url": "https://github.com/jiesou/gnome-shell-extensions-usb-notify",
   "settings-schema": "org.gnome.shell.extensions.usb-notify",
   "shell-version": [
-    "49"
+    "49",
+    "50"
   ]
 }
