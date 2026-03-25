@@ -97,6 +97,7 @@ export default class UsbNotifyPreferences extends ExtensionPreferences {
                 return;
 
             addIgnoreBtn.sensitive = false;
+            expanderRow.enable_expansion = true;
             expanderRow.expanded = true;
 
             const row = new Adw.ActionRow();
