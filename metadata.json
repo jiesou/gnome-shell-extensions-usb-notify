@@ -7,6 +7,7 @@
   "settings-schema": "org.gnome.shell.extensions.usb-notify",
   "shell-version": [
     "49",
-    "50"
+    "50",
+    "51"
   ]
 }
